@@ -1,14 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  CarouselApi,
 } from "@/components/ui/carousel";
 
 const HowItWorksSection = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const [api, setApi] = useState<CarouselApi>();
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const steps = [
     {
@@ -37,6 +40,45 @@ const HowItWorksSection = () => {
     }
   ];
 
+  useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => {
+      setActiveStep(api.selectedScrollSnap());
+    };
+
+    api.on("select", onSelect);
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
+
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (!api || !carouselRef.current) return;
+      
+      // Проверяем, находится ли курсор над каруселью
+      const rect = carouselRef.current.getBoundingClientRect();
+      const isOverCarousel = e.clientY >= rect.top && e.clientY <= rect.bottom;
+      
+      if (!isOverCarousel) return;
+
+      e.preventDefault();
+      
+      if (e.deltaY > 0) {
+        // Скролл вниз - следующий слайд
+        api.scrollNext();
+      } else {
+        // Скролл вверх - предыдущий слайд
+        api.scrollPrev();
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
+  }, [api]);
+
+  // Mobile scroll logic
   useEffect(() => {
     const handleScroll = () => {
       const stepElements = document.querySelectorAll('[data-step]');
@@ -70,38 +112,34 @@ const HowItWorksSection = () => {
         </div>
 
         {/* Desktop Carousel */}
-        <div className="hidden lg:block max-w-7xl mx-auto">
-          <Carousel className="w-full">
+        <div ref={carouselRef} className="hidden lg:block max-w-7xl mx-auto">
+          <Carousel setApi={setApi} className="w-full">
             <CarouselContent>
               {steps.map((step, index) => (
                 <CarouselItem key={index} className="basis-full">
-                  <div className="grid grid-cols-2 gap-16 h-[600px]">
-                    {/* Left - Text */}
-                    <div className="flex items-center">
-                      <div className="flex items-start space-x-6">
-                        <div className="text-5xl flex-shrink-0">
-                          {step.number}
-                        </div>
-                        <div>
-                          <h3 className="text-3xl font-bold mb-6">
-                            {step.title}
-                          </h3>
-                          <p className="text-xl leading-relaxed text-muted-foreground">
-                            {step.description}
-                          </p>
-                        </div>
-                      </div>
+                  <div className="flex flex-col h-[80vh]">
+                    {/* Full-screen Image at top */}
+                    <div className="flex-1 bg-white rounded-2xl shadow-card overflow-hidden mb-8">
+                      <img
+                        src={step.image}
+                        alt={step.title}
+                        className="w-full h-full object-contain p-8"
+                      />
                     </div>
                     
-                    {/* Right - Visual */}
-                    <div className="flex items-center">
-                      <div className="relative w-full h-full bg-white rounded-2xl shadow-card overflow-hidden">
-                        <img
-                          src={step.image}
-                          alt={step.title}
-                          className="w-full h-full object-contain p-6"
-                        />
+                    {/* Text at bottom */}
+                    <div className="text-center">
+                      <div className="flex items-center justify-center space-x-4 mb-4">
+                        <div className="text-4xl">
+                          {step.number}
+                        </div>
+                        <h3 className="text-3xl font-bold">
+                          {step.title}
+                        </h3>
                       </div>
+                      <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                        {step.description}
+                      </p>
                     </div>
                   </div>
                 </CarouselItem>

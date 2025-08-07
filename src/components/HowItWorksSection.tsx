@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -7,11 +7,20 @@ import {
   CarouselPrevious,
   CarouselApi,
 } from "@/components/ui/carousel";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Play, Pause } from "lucide-react";
 
 const HowItWorksSection = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
-  const carouselRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout>();
+  const progressIntervalRef = useRef<NodeJS.Timeout>();
+
+  const AUTOPLAY_DELAY = 5000; // 5 seconds
+  const PROGRESS_UPDATE_INTERVAL = 50; // Update progress every 50ms
 
   const steps = [
     {
@@ -40,6 +49,55 @@ const HowItWorksSection = () => {
     }
   ];
 
+  const startProgress = useCallback(() => {
+    setProgress(0);
+    let progressValue = 0;
+    
+    progressIntervalRef.current = setInterval(() => {
+      progressValue += (100 / (AUTOPLAY_DELAY / PROGRESS_UPDATE_INTERVAL));
+      setProgress(progressValue);
+      
+      if (progressValue >= 100) {
+        clearInterval(progressIntervalRef.current);
+      }
+    }, PROGRESS_UPDATE_INTERVAL);
+  }, []);
+
+  const clearTimers = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+  }, []);
+
+  const goToNext = useCallback(() => {
+    if (!api) return;
+    const nextIndex = (activeStep + 1) % steps.length;
+    api.scrollTo(nextIndex);
+  }, [api, activeStep, steps.length]);
+
+  const startAutoplay = useCallback(() => {
+    if (!isPlaying) return;
+    
+    clearTimers();
+    startProgress();
+    
+    intervalRef.current = setInterval(() => {
+      goToNext();
+    }, AUTOPLAY_DELAY);
+  }, [isPlaying, clearTimers, startProgress, goToNext]);
+
+  const stopAutoplay = useCallback(() => {
+    clearTimers();
+    setProgress(0);
+  }, [clearTimers]);
+
+  const togglePlayPause = useCallback(() => {
+    setIsPlaying(!isPlaying);
+  }, [isPlaying]);
+
   useEffect(() => {
     if (!api) return;
 
@@ -54,31 +112,16 @@ const HowItWorksSection = () => {
   }, [api]);
 
   useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      if (!api || !carouselRef.current) return;
-      
-      // Проверяем, находится ли курсор над каруселью
-      const rect = carouselRef.current.getBoundingClientRect();
-      const isOverCarousel = e.clientY >= rect.top && e.clientY <= rect.bottom;
-      
-      if (!isOverCarousel) return;
+    if (isPlaying) {
+      startAutoplay();
+    } else {
+      stopAutoplay();
+    }
 
-      e.preventDefault();
-      
-      if (e.deltaY > 0) {
-        // Скролл вниз - следующий слайд
-        api.scrollNext();
-      } else {
-        // Скролл вверх - предыдущий слайд
-        api.scrollPrev();
-      }
-    };
+    return () => clearTimers();
+  }, [isPlaying, activeStep, startAutoplay, stopAutoplay, clearTimers]);
 
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [api]);
-
-  // Mobile scroll logic
+  // Mobile scroll logic (keep existing for mobile)
   useEffect(() => {
     const handleScroll = () => {
       const stepElements = document.querySelectorAll('[data-step]');
@@ -111,71 +154,118 @@ const HowItWorksSection = () => {
           </p>
         </div>
 
-        {/* Desktop Carousel */}
-        <div ref={carouselRef} className="hidden lg:block max-w-7xl mx-auto">
-          <Carousel setApi={setApi} className="w-full">
-            <CarouselContent>
-              {steps.map((step, index) => (
-                <CarouselItem key={index} className="basis-full">
-                  <div className="flex flex-col h-[80vh]">
-                    {/* Full-screen Image at top */}
-                    <div className="flex-1 bg-white rounded-2xl shadow-card overflow-hidden mb-8">
-                      <img
-                        src={step.image}
-                        alt={step.title}
-                        className="w-full h-full object-contain p-8"
-                      />
-                    </div>
-                    
-                    {/* Text at bottom */}
-                    <div className="text-center">
-                      <div className="flex items-center justify-center space-x-4 mb-4">
-                        <div className="text-4xl">
-                          {step.number}
-                        </div>
-                        <h3 className="text-3xl font-bold">
-                          {step.title}
-                        </h3>
-                      </div>
-                      <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                        {step.description}
-                      </p>
-                    </div>
-                  </div>
-                </CarouselItem>
+        {/* Desktop Modern Carousel */}
+        <div className="hidden lg:block max-w-6xl mx-auto">
+          {/* Controls */}
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={togglePlayPause}
+                className="flex items-center space-x-2"
+              >
+                {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                <span>{isPlaying ? 'Пауза' : 'Воспроизвести'}</span>
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                {activeStep + 1} из {steps.length}
+              </div>
+            </div>
+            
+            {/* Progress bar */}
+            <div className="flex-1 max-w-xs mx-8">
+              <Progress value={progress} className="h-2" />
+            </div>
+            
+            {/* Step indicators */}
+            <div className="flex space-x-2">
+              {steps.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => api?.scrollTo(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === activeStep 
+                      ? 'bg-primary scale-125' 
+                      : 'bg-muted hover:bg-muted-foreground/50'
+                  }`}
+                />
               ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-4" />
-            <CarouselNext className="right-4" />
-          </Carousel>
+            </div>
+          </div>
+
+          <div
+            onMouseEnter={() => setIsPlaying(false)}
+            onMouseLeave={() => setIsPlaying(true)}
+          >
+            <Carousel setApi={setApi} className="w-full">
+              <CarouselContent>
+                {steps.map((step, index) => (
+                  <CarouselItem key={index} className="basis-full">
+                    <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 shadow-xl">
+                      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center min-h-[500px]">
+                        {/* Text Content */}
+                        <div className="lg:col-span-2 space-y-6">
+                          <div className="flex items-center space-x-4">
+                            <div className="text-5xl">{step.number}</div>
+                            <div className="w-12 h-0.5 bg-primary"></div>
+                          </div>
+                          
+                          <h3 className="text-3xl font-bold text-foreground">
+                            {step.title}
+                          </h3>
+                          
+                          <p className="text-lg text-muted-foreground leading-relaxed">
+                            {step.description}
+                          </p>
+                          
+                          <div className="pt-4">
+                            <div className="text-sm font-medium text-primary mb-2">
+                              Шаг {index + 1} из {steps.length}
+                            </div>
+                            <Progress value={((index + 1) / steps.length) * 100} className="h-1" />
+                          </div>
+                        </div>
+                        
+                        {/* Visual Content */}
+                        <div className="lg:col-span-3">
+                          <div className="relative aspect-video bg-white rounded-2xl shadow-lg overflow-hidden border">
+                            <img
+                              src={step.image}
+                              alt={step.title}
+                              className="w-full h-full object-contain p-6"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="left-4 bg-white/90 hover:bg-white border-gray-200" />
+              <CarouselNext className="right-4 bg-white/90 hover:bg-white border-gray-200" />
+            </Carousel>
+          </div>
         </div>
 
-        {/* Mobile Scroll Version */}
-        <div className="lg:hidden grid grid-cols-1 gap-16 max-w-7xl mx-auto">
-          {/* Text steps */}
-          <div className="space-y-24">
-            {steps.map((step, index) => (
-              <div
-                key={index}
-                data-step={index}
-                className={`step-content ${activeStep === index ? 'active' : 'inactive'}`}
-              >
-                <div className="flex items-start space-x-4 mb-8">
-                  <div className="text-4xl flex-shrink-0">
-                    {step.number}
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold mb-4">
-                      {step.title}
-                    </h3>
-                    <p className="text-lg leading-relaxed">
-                      {step.description}
-                    </p>
-                  </div>
+        {/* Mobile Version */}
+        <div className="lg:hidden space-y-16">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              data-step={index}
+              className={`transition-all duration-500 ${
+                activeStep === index ? 'opacity-100' : 'opacity-60'
+              }`}
+            >
+              <div className="bg-white rounded-2xl p-6 shadow-lg">
+                <div className="text-center mb-6">
+                  <div className="text-4xl mb-4">{step.number}</div>
+                  <h3 className="text-2xl font-bold mb-3">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
                 </div>
                 
-                {/* Image below text on mobile */}
-                <div className="relative w-full h-64 bg-white rounded-2xl shadow-card overflow-hidden">
+                <div className="aspect-video bg-gray-50 rounded-xl overflow-hidden">
                   <img
                     src={step.image}
                     alt={step.title}
@@ -183,8 +273,8 @@ const HowItWorksSection = () => {
                   />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

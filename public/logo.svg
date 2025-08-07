@@ -1,0 +1,28 @@
+<svg width="220" height="50" viewBox="0 0 220 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="logo-gradient-azure" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#00BFFF"/>
+            <stop offset="100%" stop-color="#007FFF"/>
+        </linearGradient>
+    </defs>
+
+    <g stroke="url(#logo-gradient-azure)" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <!-- S -->
+        <path d="M30 12.5 C30 5, 15 5, 15 17.5 S30 30, 30 37.5 C30 45, 15 45, 15 32.5"/>
+        
+        <!-- M -->
+        <path d="M40 40 V10 L52.5 25 L65 10 V40"/>
+
+        <!-- Connected ET -->
+        <path d="M75 10 H120 M75 10 V40 M75 25 H90 M75 40 H90 M105 10 V40"/>
+    </g>
+
+    <!-- Pink circular dot -->
+    <circle cx="132" cy="35" r="5" fill="#FF1493"/>
+
+    <!-- ai (as text) -->
+    <text x="142" y="40" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="url(#logo-gradient-azure)">ai</text>
+    
+    <!-- Pink circular dot for 'i' -->
+    <circle cx="167" cy="13" r="5" fill="#FF1493"/>
+</svg>

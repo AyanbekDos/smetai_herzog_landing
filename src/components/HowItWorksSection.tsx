@@ -10,8 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Play, Pause } from "lucide-react";
+import { ImageViewer } from "./ImageViewer";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const HowItWorksSection = () => {
+  const { t } = useLanguage();
   const [activeStep, setActiveStep] = useState(0);
   const [api, setApi] = useState<CarouselApi>();
   const [isPlaying, setIsPlaying] = useState(true);
@@ -25,26 +28,26 @@ const HowItWorksSection = () => {
   const steps = [
     {
       number: "1️⃣",
-      title: "Загрузите PDF",
-      description: "Просто отправьте PDF-файл с техническими спецификациями в Telegram-бот. Никаких сложных форм или загрузок.",
+      title: t('step1.title'),
+      description: t('step1.description'),
       image: "/lovable-uploads/97048456-ec9e-4d07-bc14-b8e372933e7f.png"
     },
     {
       number: "2️⃣", 
-      title: "ИИ находит таблицу",
-      description: "Искусственный интеллект автоматически анализирует документ и находит таблицы с техническими данными. Вы подтверждаете правильность.",
+      title: t('step2.title'),
+      description: t('step2.description'),
       image: "/lovable-uploads/34bc3cca-07b0-4f6d-bade-779b069a6bd4.png"
     },
     {
       number: "3️⃣",
-      title: "Находим цены и коэффициенты", 
-      description: "Система автоматически подставляет актуальные цены на металлопрокат и применяет нужные коэффициенты для точного расчёта.",
+      title: t('step3.title'),
+      description: t('step3.description'),
       image: "/lovable-uploads/7a42c39b-10e9-4563-bedb-0daf5ff3a80b.png"
     },
     {
       number: "4️⃣",
-      title: "Получите готовое КП",
-      description: "Через несколько минут вы получаете профессионально оформленное коммерческое предложение, готовое для отправки клиенту.",
+      title: t('step4.title'),
+      description: t('step4.description'),
       image: "/lovable-uploads/7f4c5067-1e26-4d51-8b9c-4867cbef6037.png"
     }
   ];
@@ -147,10 +150,10 @@ const HowItWorksSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
-            Как это работает
+            {t('howItWorksTitle')}
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Четыре простых шага от PDF-спецификации до готового коммерческого предложения
+            {t('howItWorksSubtitle')}
           </p>
         </div>
 
@@ -166,10 +169,10 @@ const HowItWorksSection = () => {
                 className="flex items-center space-x-2"
               >
                 {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                <span>{isPlaying ? 'Пауза' : 'Воспроизвести'}</span>
+                <span>{isPlaying ? t('pause') : t('play')}</span>
               </Button>
               <div className="text-sm text-muted-foreground">
-                {activeStep + 1} из {steps.length}
+                {activeStep + 1} {t('of')} {steps.length}
               </div>
             </div>
             
@@ -221,7 +224,7 @@ const HowItWorksSection = () => {
                           
                           <div className="pt-4">
                             <div className="text-sm font-medium text-primary mb-2">
-                              Шаг {index + 1} из {steps.length}
+                              {t('step')} {index + 1} {t('of')} {steps.length}
                             </div>
                             <Progress value={((index + 1) / steps.length) * 100} className="h-1" />
                           </div>
@@ -230,11 +233,19 @@ const HowItWorksSection = () => {
                         {/* Visual Content */}
                         <div className="lg:col-span-3">
                           <div className="relative aspect-video bg-white rounded-2xl shadow-lg overflow-hidden border">
-                            <img
+                            <ImageViewer 
                               src={step.image}
                               alt={step.title}
-                              className="w-full h-full object-contain p-6"
-                            />
+                              className="block w-full h-full hover:opacity-90 transition-opacity cursor-pointer"
+                            >
+                              <div className="w-full h-full flex items-center justify-center">
+                                <img
+                                  src={step.image}
+                                  alt={step.title}
+                                  className="w-full h-full object-contain p-6"
+                                />
+                              </div>
+                            </ImageViewer>
                           </div>
                         </div>
                       </div>
@@ -266,11 +277,19 @@ const HowItWorksSection = () => {
                 </div>
                 
                 <div className="aspect-video bg-gray-50 rounded-xl overflow-hidden">
-                  <img
+                  <ImageViewer 
                     src={step.image}
                     alt={step.title}
-                    className="w-full h-full object-contain p-4"
-                  />
+                    className="block w-full h-full hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    <div className="w-full h-full flex items-center justify-center">
+                      <img
+                        src={step.image}
+                        alt={step.title}
+                        className="w-full h-full object-contain p-4"
+                      />
+                    </div>
+                  </ImageViewer>
                 </div>
               </div>
             </div>

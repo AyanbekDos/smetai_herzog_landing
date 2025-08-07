@@ -135,7 +135,7 @@ All colors MUST be HSL.
   }
   
   .text-brand-money {
-    @apply text-[hsl(var(--brand-green))];
+    @apply text-[hsl(var(--brand-blue))];
   }
 
   /* Hero gradient background */

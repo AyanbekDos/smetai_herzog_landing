@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const HowItWorksSection = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -62,8 +69,52 @@ const HowItWorksSection = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-16 max-w-7xl mx-auto">
-          {/* Left column - Text steps */}
+        {/* Desktop Carousel */}
+        <div className="hidden lg:block max-w-7xl mx-auto">
+          <Carousel className="w-full">
+            <CarouselContent>
+              {steps.map((step, index) => (
+                <CarouselItem key={index} className="basis-full">
+                  <div className="grid grid-cols-2 gap-16 h-[600px]">
+                    {/* Left - Text */}
+                    <div className="flex items-center">
+                      <div className="flex items-start space-x-6">
+                        <div className="text-5xl flex-shrink-0">
+                          {step.number}
+                        </div>
+                        <div>
+                          <h3 className="text-3xl font-bold mb-6">
+                            {step.title}
+                          </h3>
+                          <p className="text-xl leading-relaxed text-muted-foreground">
+                            {step.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Right - Visual */}
+                    <div className="flex items-center">
+                      <div className="relative w-full h-full bg-white rounded-2xl shadow-card overflow-hidden">
+                        <img
+                          src={step.image}
+                          alt={step.title}
+                          className="w-full h-full object-contain p-6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-4" />
+            <CarouselNext className="right-4" />
+          </Carousel>
+        </div>
+
+        {/* Mobile Scroll Version */}
+        <div className="lg:hidden grid grid-cols-1 gap-16 max-w-7xl mx-auto">
+          {/* Text steps */}
           <div className="space-y-24">
             {steps.map((step, index) => (
               <div
@@ -71,7 +122,7 @@ const HowItWorksSection = () => {
                 data-step={index}
                 className={`step-content ${activeStep === index ? 'active' : 'inactive'}`}
               >
-                <div className="flex items-start space-x-4">
+                <div className="flex items-start space-x-4 mb-8">
                   <div className="text-4xl flex-shrink-0">
                     {step.number}
                   </div>
@@ -84,26 +135,17 @@ const HowItWorksSection = () => {
                     </p>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Right column - Visual container (sticky) */}
-          <div className="visual-container">
-            <div className="relative w-full h-full bg-white rounded-2xl shadow-card overflow-hidden">
-              {steps.map((step, index) => (
-                <div
-                  key={index}
-                  className={`visual-item ${activeStep === index ? 'active' : ''}`}
-                >
+                
+                {/* Image below text on mobile */}
+                <div className="relative w-full h-64 bg-white rounded-2xl shadow-card overflow-hidden">
                   <img
                     src={step.image}
                     alt={step.title}
                     className="w-full h-full object-contain p-4"
                   />
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

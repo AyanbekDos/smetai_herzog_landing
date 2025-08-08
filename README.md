@@ -76,6 +76,12 @@ Steps:
 - Configure the build command and output directory as above.
 - Optional: set Node version if needed (Pages defaults are fine for Vite 5).
 
+Note: The repository uses npm (package-lock.json). We removed `bun.lockb` to ensure Cloudflare uses npm. In Pages Build settings you can also set the build command explicitly to:
+
+```
+npm ci && npm run build
+```
+
 #### Form submissions → Telegram
 
 This repo includes a Cloudflare Pages Function at `functions/submit.ts`.

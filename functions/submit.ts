@@ -1,3 +1,16 @@
+export const onRequestOptions: PagesFunction = async () => {
+  // CORS preflight support
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+};
+
 export const onRequestPost: PagesFunction = async ({ request, env }) => {
   try {
     const { name, contact } = await request.json();
@@ -5,7 +18,7 @@ export const onRequestPost: PagesFunction = async ({ request, env }) => {
     if (!name || !contact) {
       return new Response(JSON.stringify({ error: 'Missing fields' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }
 
@@ -15,7 +28,7 @@ export const onRequestPost: PagesFunction = async ({ request, env }) => {
     if (!token || !chatId) {
       return new Response(JSON.stringify({ error: 'Server not configured' }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
       });
     }
 
@@ -35,22 +48,39 @@ export const onRequestPost: PagesFunction = async ({ request, env }) => {
     });
 
     if (!tgRes.ok) {
-      const errText = await tgRes.text();
-      return new Response(JSON.stringify({ error: 'Telegram error', details: errText }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
-      });
+      let details: any = null;
+      try {
+        details = await tgRes.json();
+      } catch {
+        details = { text: await tgRes.text() };
+      }
+      const hint =
+        tgRes.status === 400 && /chat not found/i.test(JSON.stringify(details))
+          ? 'Check TELEGRAM_CHAT_ID: use numeric user ID for direct messages, @channel_username for channels (bot must be admin), or negative numeric ID for groups.'
+          : tgRes.status === 403
+          ? 'Bot may be blocked or not started by the user, or lacks rights in the chat.'
+          : undefined;
+
+      return new Response(
+        JSON.stringify({ error: 'Telegram error', status: tgRes.status, details, hint }),
+        {
+          status: 502,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+        }
+      );
     }
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
   } catch (e: any) {
-    return new Response(JSON.stringify({ error: 'Invalid request', details: String(e?.message || e) }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({ error: 'Invalid request', details: String(e?.message || e) }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      }
+    );
   }
 };
-

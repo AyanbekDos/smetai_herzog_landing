@@ -19,6 +19,12 @@ export const translations = {
     // Partners Section
     supportedBy: 'ПРИ ПОДДЕРЖКЕ',
 
+    // Video Section
+    videoTitle: 'Видео‑демо',
+    videoSubtitle: '2 минуты, чтобы понять главное',
+    watchOnYoutube: 'Открыть на YouTube',
+    videoPlaceholder: 'Добавьте ID видео YouTube, чтобы отобразить плеер',
+
     // How It Works Section
     howItWorksTitle: 'Как это работает',
     howItWorksSubtitle: 'Четыре простых шага от PDF-спецификации до готового коммерческого предложения',
@@ -88,6 +94,12 @@ export const translations = {
     // Partners Section
     supportedBy: 'ҚОЛДАУ КӨРСЕТУІМЕН',
 
+    // Video Section
+    videoTitle: 'Видео‑демо',
+    videoSubtitle: 'Негізгісі – 2 минутта',
+    watchOnYoutube: 'YouTube-та ашу',
+    videoPlaceholder: 'Плеерді көрсету үшін YouTube бейне ID қосыңыз',
+
     // How It Works Section
     howItWorksTitle: 'Қалай жұмыс істейді',
     howItWorksSubtitle: 'PDF-спецификациядан дайын коммерциялық ұсынысқа дейін төрт қарапайым қадам',
@@ -156,6 +168,12 @@ export const translations = {
 
     // Partners Section
     supportedBy: 'SUPPORTED BY',
+
+    // Video Section
+    videoTitle: 'Video Demo',
+    videoSubtitle: '2 minutes to get the gist',
+    watchOnYoutube: 'Open on YouTube',
+    videoPlaceholder: 'Add a YouTube video ID to display the player',
 
     // How It Works Section
     howItWorksTitle: 'How It Works',

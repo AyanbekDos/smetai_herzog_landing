@@ -38,7 +38,7 @@ const HeroSection = () => {
               <a href="#form">{t('getBetaAccess')}</a>
             </Button>
             <Button variant="hero-outline" size="lg" asChild className="text-lg px-8 py-4 h-auto">
-              <a href="#how-it-works">{t('watchDemo')}</a>
+              <a href="#video">{t('watchDemo')}</a>
             </Button>
           </div>
         </div>

@@ -6,42 +6,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PrivacyPolicyModal } from "./PrivacyPolicyModal";
 
-// Telegram Bot Configuration
-const TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN";
-const TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"; // Channel username or chat ID
-
-const sendToTelegram = async (formData: { name: string; contact: string }) => {
-  const message = `🔔 Новая заявка на бета-тест SMET.ai
-
-👤 **Имя:** ${formData.name}
-📞 **Контакт:** ${formData.contact}
-
-📅 **Дата:** ${new Date().toLocaleString("ru-RU")}`;
-
-  try {
-    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown',
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to send message to Telegram');
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error('Error sending to Telegram:', error);
-    throw error;
-  }
-};
-
 const BetaFormSection = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -56,16 +20,13 @@ const BetaFormSection = () => {
     setIsSubmitting(true);
 
     try {
-      // Simple form submission using fetch to Netlify/Cloudflare Pages
-      await fetch('/', {
+      // Submit to Cloudflare Pages Function
+      const res = await fetch('/submit', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          'form-name': 'beta-form',
-          'name': formData.name,
-          'contact': formData.contact
-        }).toString()
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: formData.name, contact: formData.contact }),
       });
+      if (!res.ok) throw new Error('Submission failed');
       
       toast({
         title: t('formSuccessTitle'),
@@ -105,12 +66,7 @@ const BetaFormSection = () => {
           <form 
             onSubmit={handleSubmit} 
             className="space-y-6"
-            name="beta-form" 
-            data-netlify="true"
-            netlify-honeypot="bot-field"
           >
-            <input type="hidden" name="form-name" value="beta-form" />
-            <input type="hidden" name="bot-field" />
             <div className="grid gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-left block">

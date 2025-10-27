@@ -14,8 +14,8 @@ const Footer = () => {
         </div>
 
         <div className="flex flex-col gap-2 text-sm text-slate-500 md:text-right">
-          <a href="mailto:hello@smetai.online" className="transition hover:text-indigo-600">
-            hello@smetai.online
+          <a href="mailto:founder@smetai.online" className="transition hover:text-indigo-600">
+            founder@smetai.online
           </a>
           <a
             href="https://t.me/aianback"
@@ -24,14 +24,6 @@ const Footer = () => {
             className="transition hover:text-indigo-600"
           >
             Telegram: @aianback
-          </a>
-          <a
-            href="https://github.com/AyanbekDos/smet-ai-blueprint"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition hover:text-indigo-600"
-          >
-            GitHub проекта
           </a>
         </div>
       </div>

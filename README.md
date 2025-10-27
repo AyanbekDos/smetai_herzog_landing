@@ -1,114 +1,108 @@
-# Welcome to your Lovable project
+# Smetai Landing (Vite + React)
 
-## Project info
+Одностраничный лендинг для гипотезы Smetai: AI-конвейер, который превращает сметы в календарные планы и готовые Excel/PDF отчеты. Проект собран на Vite + React + Tailwind + shadcn/ui.
 
-**URL**: https://lovable.dev/projects/1a9b4d97-8185-4259-94e8-d25be4b601fd
+## Локальный запуск
 
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/1a9b4d97-8185-4259-94e8-d25be4b601fd) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+По умолчанию Vite стартует на `http://localhost:5173`. Перед запуском скопируйте переменные окружения из `.env.example` в `.env`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Переменные окружения
 
-**Use GitHub Codespaces**
+| Ключ                     | Описание                                                        |
+| ------------------------ | ---------------------------------------------------------------- |
+| `TELEGRAM_BOT_TOKEN`     | Секретный токен Telegram-бота для серверной отправки заявок.          |
+| `TELEGRAM_CHAT_ID`       | ID канала/группы/чата, куда складывать лиды (например, `-1002957...`). |
+| `VITE_YOUTUBE_VIDEO_ID`  | ID ролика для раздела с видео (по умолчанию `dQw4w9WgXcQ`).        |
+| `VITE_GA_MEASUREMENT_ID` | GA4 Measurement ID (`G-B71PL9G02D`). При пустом значении GA не подключается. |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+> ⚠️ `TELEGRAM_*` переменные используются только сервером (`server/index.js`) и не попадают в браузер.
 
-## What technologies are used for this project?
+## Формы и аналитика
 
-This project is built with:
+- Компонент `LeadForm` (`src/components/LeadForm.tsx`) используется в герое и в финальном CTA.
+- `src/lib/telegram.ts` отправляет payload на `/api/lead`, а сервер (`server/index.js`) шлет сообщение в Telegram через Bot API.
+- `src/lib/utm.ts` сохраняет UTM-метки и referrer в `sessionStorage` и подставляет их в каждую заявку.
+- `src/lib/analytics.ts` оборачивает вызовы `gtag`. События для кликов и сабмитов объявлены внутри компонентов.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Медиа и ассеты
 
-## How can I deploy this project?
+- Готовые примеры отчетов лежат в `public/samples/` (три Excel-файла с префиксом `Smetai_...`). Меняйте содержимое и названия под свои кейсы.
+- Видео-обзор берется с YouTube. Чтобы заменить ссылку, задайте `VITE_YOUTUBE_VIDEO_ID`.
+- Брендинг и цвета задаются Tailwind-классами (см. `src/index.css`). Шрифт — Inter.
 
-You can use Lovable’s Publish, or deploy to Cloudflare Pages.
+## Сборка и предпросмотр
 
-### Cloudflare Pages (recommended)
-
-- Build command: `npm run build`
-- Output directory: `dist`
-- Framework preset: Vite (optional)
-- SPA routing: included via `public/_redirects` (fallback to `index.html`).
-
-Steps:
-- Create a Pages project and connect your Git repo.
-- Configure the build command and output directory as above.
-- Optional: set Node version if needed (Pages defaults are fine for Vite 5).
-
-Note: The repository uses npm (package-lock.json). We removed `bun.lockb` to ensure Cloudflare uses npm. In Pages Build settings you can also set the build command explicitly to:
-
-```
-npm ci && npm run build
+```bash
+npm run build    # production-сборка в dist/
+npm run preview  # проверка production-версии на http://localhost:4173
 ```
 
-#### Form submissions → Telegram
+## Деплой на Droplet / любой VM
 
-This repo includes a Cloudflare Pages Function at `functions/submit.ts`.
+1. **Первичная настройка сервера**
+   ```bash
+   sudo apt update && sudo apt install -y git nginx
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+   sudo apt install -y nodejs
+   sudo mkdir -p /var/www/smetai && sudo chown $USER:$USER /var/www/smetai
+   ```
 
-- Frontend posts JSON to `/submit` with `{ name, contact }`.
-- The function sends a Telegram message via Bot API.
+2. **Сборка и запуск**
+   ```bash
+   cd /var/www/smetai
+   git clone https://github.com/<your-org>/<repo>.git .
+   cp .env.example .env   # заполните TELEGRAM_* и VITE_* переменные
+   npm install
+   npm run build
+   npm run start          # Express поднимет /api/lead и раздаст dist/
+   ```
+   Для постоянной работы используйте `pm2 start npm --name smetai -- start`.
 
-Configure secrets in Cloudflare Pages → Settings → Environment variables:
+3. **Nginx reverse proxy**
+   ```
+   server {
+     listen 80;
+     server_name smetai.online;
+     location / {
+       proxy_pass http://127.0.0.1:4173;
+       proxy_set_header Host $host;
+       proxy_set_header X-Real-IP $remote_addr;
+       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto $scheme;
+     }
+   }
+   ```
+   Перезапустите Nginx и настройте DNS (`A` → IP Droplet-а).
 
-- `TELEGRAM_BOT_TOKEN` (Secret): token of your bot
-- `TELEGRAM_CHAT_ID` (Secret): chat ID or channel `@username`
+4. **CI/CD через GitHub Actions**
+   Добавьте `.github/workflows/deploy.yml`, который при пуше в `main` выполняет SSH на сервер и запускает скрипт:
+   ```bash
+   # /var/www/smetai/deploy.sh
+   set -e
+   cd /var/www/smetai
+   git fetch origin main
+   git reset --hard origin/main
+   npm install
+   npm run build
+   pm2 restart smetai || pm2 start npm --name smetai -- start
+   ```
+   В GitHub Secrets положите `DROPLET_HOST`, `DROPLET_USER`, `DROPLET_SSH_KEY`.
 
-After saving, redeploy the project. The form in the “Beta” section will start sending applications to Telegram.
+## Полезные команды
 
-#### Configure demo video
+```bash
+npm run lint     # ESLint
+npm run dev      # локальная разработка
+npm run build    # production-сборка
+npm run preview  # предпросмотр production-сборки
+npm run start    # Express-сервер (используется на проде)
+```
 
-`VideoSection` reads the YouTube ID from a Vite env variable. Set it in Pages → Settings → Environment variables (both Production and Preview):
+## Лицензия
 
-- Name: `VITE_YOUTUBE_VIDEO_ID`
-- Value: e.g. `dQw4w9WgXcQ`
-
-Local development: create `.env` with `VITE_YOUTUBE_VIDEO_ID=<your_id>`.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+MIT — можете свободно использовать и адаптировать лендинг.

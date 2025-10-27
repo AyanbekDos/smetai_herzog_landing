@@ -1,22 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SMET.ai - AI-бот для смет по металлоконструкциям</title>
-    <meta name="description" content="SMET.ai сокращает работу сметчика на 90% и делает расчёт в 13 раз быстрее конкурентов. Получите готовые коммерческие предложения за минуты." />
-    <meta name="author" content="SMET.ai" />
-    <meta name="keywords" content="смета, металлоконструкции, AI, искусственный интеллект, коммерческое предложение, расчёт стоимости" />
+    <title>Smetai — автоматизация календарных планов по смете</title>
+    <meta
+      name="description"
+      content="Smetai — AI-конвейер, который превращает сметы в детализированные календарные планы с готовыми отчетами Excel и PDF."
+    />
+    <meta name="author" content="Smetai" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
-    <meta property="og:title" content="SMET.ai - AI-бот для смет по металлоконструкциям" />
-    <meta property="og:description" content="SMET.ai сокращает работу сметчика на 90% и делает расчёт в 13 раз быстрее конкурентов." />
+    <meta property="og:title" content="Smetai — автоматизация календарных планов по смете" />
+    <meta
+      property="og:description"
+      content="AI-конвейер, который генерирует календарные планы и отчеты из ваших смет."
+    />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://smetai.online" />
+    <meta property="og:image" content="/placeholder.svg" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:title" content="Smetai — автоматизация календарных планов по смете" />
+    <meta
+      name="twitter:description"
+      content="AI-конвейер, который генерирует календарные планы и отчеты из ваших смет."
+    />
+    <meta name="twitter:image" content="/placeholder.svg" />
+
+    <!-- Google Analytics (GA4) -->
+    <script type="module">
+      const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+
+      if (measurementId) {
+        const script = document.createElement("script");
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+        script.async = true;
+        document.head.appendChild(script);
+
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          window.dataLayer.push(arguments);
+        }
+        window.gtag = gtag;
+        gtag("js", new Date());
+        gtag("config", measurementId);
+      }
+    </script>
   </head>
 
   <body>

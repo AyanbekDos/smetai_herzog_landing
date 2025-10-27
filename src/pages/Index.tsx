@@ -1,9 +1,14 @@
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import PartnersSection from "@/components/PartnersSection";
-import HowItWorksSection from "@/components/HowItWorksSection";
+import PainSolutionSection from "@/components/PainSolutionSection";
+import PipelineSection from "@/components/PipelineSection";
 import VideoSection from "@/components/VideoSection";
-import BetaFormSection from "@/components/BetaFormSection";
+import SamplesSection from "@/components/SamplesSection";
+import FeaturesSection from "@/components/FeaturesSection";
+import TestimonialsSection from "@/components/TestimonialsSection";
+import PricingSection from "@/components/PricingSection";
+import FAQSection from "@/components/FAQSection";
+import FinalCTASection from "@/components/FinalCTASection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -11,10 +16,15 @@ const Index = () => {
     <div className="min-h-screen">
       <Header />
       <HeroSection />
-      <PartnersSection />
-      <HowItWorksSection />
+      <PainSolutionSection />
+      <PipelineSection />
       <VideoSection />
-      <BetaFormSection />
+      <SamplesSection />
+      <FeaturesSection />
+      <TestimonialsSection />
+      <PricingSection />
+      <FAQSection />
+      <FinalCTASection />
       <Footer />
     </div>
   );

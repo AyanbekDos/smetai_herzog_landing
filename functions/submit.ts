@@ -48,11 +48,12 @@ export const onRequestPost: PagesFunction = async ({ request, env }) => {
     });
 
     if (!tgRes.ok) {
-      let details: any = null;
+      let details: unknown = null;
       try {
         details = await tgRes.json();
       } catch {
-        details = { text: await tgRes.text() };
+        const fallbackText = await tgRes.text();
+        details = fallbackText ? { text: fallbackText } : null;
       }
       const hint =
         tgRes.status === 400 && /chat not found/i.test(JSON.stringify(details))
@@ -74,9 +75,10 @@ export const onRequestPost: PagesFunction = async ({ request, env }) => {
       status: 200,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
     return new Response(
-      JSON.stringify({ error: 'Invalid request', details: String(e?.message || e) }),
+      JSON.stringify({ error: 'Invalid request', details: message }),
       {
         status: 400,
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },

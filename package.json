@@ -12,7 +12,6 @@
     "start": "node server/index.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
     "@hookform/resolvers": "^3.10.0",
     "@iconify/react": "^6.0.0",
     "@radix-ui/react-accordion": "^1.2.11",
@@ -47,7 +46,9 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^3.6.0",
+    "dotenv": "^17.2.3",
     "embla-carousel-react": "^8.6.0",
+    "express": "^4.19.2",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",

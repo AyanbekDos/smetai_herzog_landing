@@ -18,4 +18,9 @@ jobs:
           key: ${{ secrets.DROPLET_SSH_KEY }}
           script: |
             cd /var/www/smetai
+            if [ ! -f deploy.sh ]; then
+              git fetch --prune origin
+              git checkout main
+              git pull --ff-only origin main
+            fi
             bash deploy.sh
